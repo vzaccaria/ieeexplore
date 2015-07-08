@@ -5,17 +5,17 @@
   "bin": {
     "ieeexplore": "./index.js"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [],
   "author": "Vittorio Zaccaria",
   "license": "BSD",
   "dependencies": {
     "ansi-color": "^0.2.1",
     "ansi-color-table": "^1.0.0",
+    "babel": "^5.6.14",
     "bluebird": "*",
     "docopt": "~0.4.1",
+    "git-hist": "0.0.3",
+    "livescript": "^1.4.0",
     "moment": "^2.10.3",
     "optimist": "^0.6.1",
     "shelljs": "*",
