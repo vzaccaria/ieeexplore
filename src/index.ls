@@ -11,8 +11,15 @@ shelljs = require('shelljs')
 table = require('ansi-color-table')
 chalk = require('chalk')
 
+$b = require('bluebird')
+
 _.mixin(_.str.exports());
 _.str.include('Underscore.string', 'string');
+
+url-encode = require('urlencode');
+parser = require('xml2json');
+ieee = require('./lib/ieee')
+
 
 name        = "ie"
 description = "Search for ieee explore"
@@ -98,57 +105,18 @@ argv     = optimist.usage(usage-string,
 
 if(argv.help)
   optimist.showHelp()
-  return
-
-url-encode = require('urlencode');
-parser = require('xml2json');
-
-qt = _.words(argv.keywords, ',') 
+  process.exit(0) 
 
 
-dt = (s) ->
-  "\"Document Title\":#s"
+argv.title ?= false
 
 
-pt = (s) ->
-  "\"Publication Title\":#s"
-
-for k,w of qt 
-  if argv.title? and argv.title
-    qt[k] = dt w
-  else 
-    qt[k] = w
-
-
-if argv.transaction
-  qt.push pt \transaction
-
-if argv.brief
-  qt.push pt \brief
-
-if argv.signal
-  qt.push pt "signal processing"
-
-if argv.computer
-  qt.push pt "transaction computers"
-
-if argv.focus?
-  qt.push pt argv.focus
-
-qt = qt * ' AND ' 
-
-req-options = 
-  hc:         argv.number 
-  rs:         argv.number * argv.batch + 1
-  sortfield:  \py 
-  sortorder:  \desc
-  querytext: qt
-
-ie      = "http://ieeexplore.ieee.org/gateway/ipsSearch.jsp?"
-url     = "#{ie}#{url-encode.stringify(req-options)}"
-request = require('superagent');
-wrap    = require('word-wrap')
-
+ieee.addKeywords(_.words(argv.keywords, ','), argv.title) 
+ieee.searchPubs("transaction") if argv.transaction
+ieee.searchPubs("brief") if argv.brief
+ieee.searchPubs("signal processing") if argv.signal
+ieee.searchPubs("transaction computers") if argv.computer
+ieee.searchPubs(argv.focus) if argv.focus?
 
 display = ->
   if not argv.markdown
@@ -168,10 +136,8 @@ display = ->
     console.log "#{@abstract}"
     console.log "([pdf](#{@pdf}))"
 
-request.get(url).end (res) ->
-  data = parser.to-json(res.text, {object:true})
-  for d in data.root.document
+ieee.sendRequest(argv.number, argv.batch).then ->
+  for d in it
       display.apply(d)
 
-command = argv._
 
