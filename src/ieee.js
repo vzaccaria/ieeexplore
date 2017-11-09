@@ -37,7 +37,7 @@ var ieeeSearch = () => {
             return `"Publication Title":${s}`
         })
 
-        var tquery = `(${qt.join(' OR ')})`
+        var tquery = `(${qt.join(' AND ')})`
         var cquery = `${([tquery].concat(pubs)).join(' AND ')}`
         var reqOptions = {
             hc: batchsize,

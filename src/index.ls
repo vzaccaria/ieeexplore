@@ -86,6 +86,9 @@ argv     = optimist.usage(usage-string,
               brief:
                 alias: 'i', description: 'search in brief transactions', default: false, boolean:true
 
+              letters:
+                alias: 'l', description: 'search in letters', default: false, boolean:true
+
               signal:
                 alias: 's', description: 'look in signal processing journals', default: false, boolean:true
 
@@ -113,7 +116,10 @@ argv.title ?= false
 
 ieee.addKeywords(_.words(argv.keywords, ','), argv.title) 
 ieee.searchPubs("transaction") if argv.transaction
-ieee.searchPubs("brief") if argv.brief
+if argv.brief
+   ieee.searchPubs("brief")
+if argv.letters
+   ieee.searchPubs("letters")
 ieee.searchPubs("signal processing") if argv.signal
 ieee.searchPubs("transaction computers") if argv.computer
 ieee.searchPubs(argv.focus) if argv.focus?
@@ -121,10 +127,10 @@ ieee.searchPubs(argv.focus) if argv.focus?
 display = ->
   if not argv.markdown
     console.log "#{@py} #{chalk.green(@pubtitle)}"
-    console.log "     " + chalk.grey(@authors)
-    console.log "     " + chalk.blue(@title)
+    console.log "     " + chalk.blue(@authors)
+    console.log "     " + chalk.white(@title)
     console.log wrap(_(@abstract).truncate(300), {width: 60}) if argv.abstract
-    console.log @pdf
+    console.log "     " + chalk.green(@pdf)
     console.log "" 
   else 
     console.log ""
